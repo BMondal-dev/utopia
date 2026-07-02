@@ -1,0 +1,27 @@
+{
+    "name": "bijit/utopia-backend",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "Bijit\\UtopiaBackend\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Bijit Mondal"
+        }
+    ],
+    "require": {
+        "utopia-php/http": "^2.0@RC"
+    },
+    "config": {
+        "platform": {
+            "ext-protobuf": "3.0.0",
+            "ext-opentelemetry": "1.0.0"
+        },
+        "allow-plugins": {
+            "php-http/discovery": true,
+            "tbachert/spi": true
+        }
+    }
+}
