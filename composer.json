@@ -1,9 +1,9 @@
 {
-    "name": "bijit/utopia-backend",
+    "name": "clarus/backend",
     "type": "project",
     "autoload": {
         "psr-4": {
-            "Bijit\\UtopiaBackend\\": "src/"
+            "Clarus\\": "src/Clarus/"
         }
     },
     "authors": [
@@ -12,12 +12,22 @@
         }
     ],
     "require": {
-        "utopia-php/http": "^2.0@RC"
+        "utopia-php/http": "^2.0@RC",
+        "utopia-php/platform": "^1.0@RC",
+        "utopia-php/database": "^6.0",
+        "utopia-php/config": "^1.0",
+        "utopia-php/registry": "^0.5",
+        "utopia-php/validators": "^0.2",
+        "utopia-php/console": "^0.1",
+        "utopia-php/pools": "^1.0",
+        "utopia-php/system": "^0.10"
     },
     "config": {
         "platform": {
             "ext-protobuf": "3.0.0",
-            "ext-opentelemetry": "1.0.0"
+            "ext-opentelemetry": "1.0.0",
+            "ext-redis": "6.0.0",
+            "ext-yaml": "2.0.0"
         },
         "allow-plugins": {
             "php-http/discovery": true,

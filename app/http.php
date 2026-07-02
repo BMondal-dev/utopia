@@ -1,25 +1,19 @@
 <?php
 
-require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/init.php';
+require_once __DIR__ . '/controllers/general.php';
 
+use Clarus\Utopia\Server;
 use Utopia\Http\Http;
-use Utopia\Http\Request;
-use Utopia\Http\Response;
-use Utopia\Http\Adapter\Swoole\Server;
+use Utopia\System\System;
 
-$http = new Http(new Server('0.0.0.0', '8080'), 'UTC');
+global $container;
 
-Http::get('/')
-    ->inject('request')
-    ->inject('response')
-    ->action(function (Request $request, Response $response) {
-        $response->json(['status' => 'ok', 'message' => 'utopia is walking']);
-    });
+$server = new Server(
+    host: '0.0.0.0',
+    port: System::getEnv('PORT', '8080'),
+    resources: $container,
+);
 
-Http::get('/health')
-    ->inject('response')
-    ->action(function (Response $response) {
-        $response->json(['status' => 'ok']);
-    });
-
+$http = new Http($server, 'UTC');
 $http->start();

@@ -46,7 +46,27 @@
       <path value="$PROJECT_DIR$/vendor/symfony/polyfill-php82" />
       <path value="$PROJECT_DIR$/vendor/symfony/polyfill-mbstring" />
       <path value="$PROJECT_DIR$/vendor/symfony/polyfill-php83" />
+      <path value="$PROJECT_DIR$/vendor/utopia-php/database" />
+      <path value="$PROJECT_DIR$/vendor/utopia-php/lock" />
+      <path value="$PROJECT_DIR$/vendor/utopia-php/config" />
+      <path value="$PROJECT_DIR$/vendor/utopia-php/queue" />
+      <path value="$PROJECT_DIR$/vendor/symfony/polyfill-php85" />
+      <path value="$PROJECT_DIR$/vendor/mongodb/mongodb" />
+      <path value="$PROJECT_DIR$/vendor/utopia-php/mongo" />
+      <path value="$PROJECT_DIR$/vendor/utopia-php/registry" />
+      <path value="$PROJECT_DIR$/vendor/utopia-php/console" />
+      <path value="$PROJECT_DIR$/vendor/utopia-php/cli" />
+      <path value="$PROJECT_DIR$/vendor/utopia-php/cache" />
+      <path value="$PROJECT_DIR$/vendor/utopia-php/pools" />
+      <path value="$PROJECT_DIR$/vendor/utopia-php/circuit-breaker" />
+      <path value="$PROJECT_DIR$/vendor/utopia-php/platform" />
     </include_path>
+  </component>
+  <component name="PhpProjectSharedConfiguration" php_language_level="8.3" />
+  <component name="PhpRuntimeConfiguration">
+    <extensions>
+      <extension name="swoole" enabled="true" />
+    </extensions>
   </component>
   <component name="PhpStanOptionsConfiguration">
     <option name="transferred" value="true" />

@@ -1,0 +1,61 @@
+<?php
+
+use Utopia\Database\Database;
+use Utopia\Database\Helpers\ID;
+
+return [
+    'todos' => [
+        '$collection' => ID::custom(Database::METADATA),
+        '$id' => ID::custom('todos'),
+        'name' => 'todos',
+        'attributes' => [
+            [
+                '$id' => ID::custom('title'),
+                'type' => Database::VAR_STRING,
+                'format' => '',
+                'size' => APP_LIMIT_TODO_TITLE,
+                'signed' => true,
+                'required' => true,
+                'default' => null,
+                'array' => false,
+                'filters' => [],
+            ],
+            [
+                '$id' => ID::custom('description'),
+                'type' => Database::VAR_STRING,
+                'format' => '',
+                'size' => APP_LIMIT_TODO_DESCRIPTION,
+                'signed' => true,
+                'required' => false,
+                'default' => '',
+                'array' => false,
+                'filters' => [],
+            ],
+            [
+                '$id' => ID::custom('completed'),
+                'type' => Database::VAR_BOOLEAN,
+                'format' => '',
+                'size' => 0,
+                'signed' => true,
+                'required' => false,
+                'default' => false,
+                'array' => false,
+                'filters' => [],
+            ],
+        ],
+        'indexes' => [
+            [
+                '$id' => ID::custom('_key_completed'),
+                'type' => Database::INDEX_KEY,
+                'attributes' => ['completed'],
+                'orders' => [Database::ORDER_ASC],
+            ],
+            [
+                '$id' => ID::custom('_createdAt'),
+                'type' => Database::INDEX_KEY,
+                'attributes' => ['$createdAt'],
+                'orders' => [Database::ORDER_DESC],
+            ],
+        ],
+    ],
+];

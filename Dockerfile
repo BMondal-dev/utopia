@@ -18,6 +18,7 @@ FROM docker.io/phpswoole/swoole:php8.4-alpine AS base
 WORKDIR /usr/src/code
 
 RUN apk add --no-cache postgresql-dev \
+    && (php -m | grep -q '^redis$' || (pecl install redis && docker-php-ext-enable redis)) \
     && docker-php-ext-install pdo pdo_pgsql
 
 COPY --from=composer /usr/local/src/vendor /usr/src/code/vendor

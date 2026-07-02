@@ -3,34 +3,51 @@ services:
     build:
       context: .
       target: development
-    ports:
-      - "8080:8080"
+    network_mode: host
     volumes:
       - ./src:/usr/src/code/src
       - ./app:/usr/src/code/app
     environment:
-      - DB_HOST=postgres
+      - DB_HOST=127.0.0.1
       - DB_PORT=5432
-      - DB_NAME=${DB_NAME:-utopia}
-      - DB_USER=${DB_USER:-utopia}
+      - DB_NAME=${DB_NAME:-clarus}
+      - DB_USER=${DB_USER:-clarus}
       - DB_PASSWORD=${DB_PASSWORD:-secret}
+      - REDIS_HOST=127.0.0.1
+      - REDIS_PORT=6379
+      - _APP_ENV=development
+      - _APP_CACHE_ADAPTER=memory
+      - PORT=8080
     depends_on:
       postgres:
         condition: service_healthy
     restart: unless-stopped
 
   postgres:
-    image: docker.io/library/postgres:17-alpine
+    build:
+      context: .
+      dockerfile: docker/postgres.Dockerfile
     environment:
-      POSTGRES_DB: ${DB_NAME:-utopia}
-      POSTGRES_USER: ${DB_USER:-utopia}
+      POSTGRES_DB: ${DB_NAME:-clarus}
+      POSTGRES_USER: ${DB_USER:-clarus}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-secret}
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-utopia} -d ${DB_NAME:-utopia}"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-clarus} -d ${DB_NAME:-clarus}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  redis:
+    image: docker.io/library/redis:7-alpine
+    ports:
+      - "6380:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
       interval: 5s
       timeout: 5s
       retries: 10
