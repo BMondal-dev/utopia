@@ -8,7 +8,7 @@ use Swoole\Http\Response as SwooleResponse;
 use Utopia\Http\Adapter\Swoole\Request;
 use Utopia\Http\Adapter\Swoole\Server as BaseServer;
 
-class   Server extends BaseServer
+class Server extends BaseServer
 {
     protected const string CONTEXT_KEY = '__utopia__';
 

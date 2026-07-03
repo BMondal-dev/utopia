@@ -1,12 +1,15 @@
-FROM docker.io/library/composer:2 AS composer
+FROM docker.io/phpswoole/swoole:php8.4-alpine AS composer
 
 WORKDIR /usr/local/src/
+
+RUN apk add --no-cache postgresql-dev \
+    && (php -m | grep -q '^redis$' || (pecl install redis && docker-php-ext-enable redis)) \
+    && docker-php-ext-install pdo pdo_pgsql
 
 COPY composer.lock /usr/local/src/
 COPY composer.json /usr/local/src/
 
 RUN composer install \
-    --ignore-platform-reqs \
     --optimize-autoloader \
     --no-plugins \
     --no-scripts \

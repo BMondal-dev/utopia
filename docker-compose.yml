@@ -43,11 +43,11 @@ services:
     restart: unless-stopped
 
   redis:
-    image: docker.io/library/redis:7-alpine
+    image: docker.io/valkey/valkey:7-alpine
     ports:
       - "6380:6379"
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD", "valkey-cli", "ping"]
       interval: 5s
       timeout: 5s
       retries: 10
