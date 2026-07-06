@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9548a5e97eb4383acac928412f29cc86",
+    "content-hash": "83a793beeb04a55b60b4acff622a261b",
     "packages": [
         {
             "name": "brick/math",
@@ -2340,16 +2340,16 @@
         },
         {
             "name": "utopia-php/database",
-            "version": "6.4.1",
+            "version": "6.4.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/utopia-php/database.git",
-                "reference": "efca1a633b8846ec26e376cc85491a62fdb2d033"
+                "reference": "a090699f9cf70b1521e58c812d42574731b4b06b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/utopia-php/database/zipball/efca1a633b8846ec26e376cc85491a62fdb2d033",
-                "reference": "efca1a633b8846ec26e376cc85491a62fdb2d033",
+                "url": "https://api.github.com/repos/utopia-php/database/zipball/a090699f9cf70b1521e58c812d42574731b4b06b",
+                "reference": "a090699f9cf70b1521e58c812d42574731b4b06b",
                 "shasum": ""
             },
             "require": {
@@ -2394,9 +2394,9 @@
             ],
             "support": {
                 "issues": "https://github.com/utopia-php/database/issues",
-                "source": "https://github.com/utopia-php/database/tree/6.4.1"
+                "source": "https://github.com/utopia-php/database/tree/6.4.2"
             },
-            "time": "2026-07-02T05:55:38+00:00"
+            "time": "2026-07-06T07:00:51+00:00"
         },
         {
             "name": "utopia-php/di",
@@ -2448,22 +2448,24 @@
         },
         {
             "name": "utopia-php/http",
-            "version": "2.0.0-rc14",
+            "version": "2.0.0-rc16",
             "source": {
                 "type": "git",
                 "url": "https://github.com/utopia-php/http.git",
-                "reference": "a175afb710c5c451bb92f404fefade389701f5d5"
+                "reference": "37616fe0df438b25ae0feffd61027774337cb113"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/utopia-php/http/zipball/a175afb710c5c451bb92f404fefade389701f5d5",
-                "reference": "a175afb710c5c451bb92f404fefade389701f5d5",
+                "url": "https://api.github.com/repos/utopia-php/http/zipball/37616fe0df438b25ae0feffd61027774337cb113",
+                "reference": "37616fe0df438b25ae0feffd61027774337cb113",
                 "shasum": ""
             },
             "require": {
-                "php": ">=8.3",
+                "php": ">=8.4",
+                "psr/http-message": "^1.1 || ^2.0",
                 "utopia-php/compression": "^0.1",
                 "utopia-php/di": "^0.3",
+                "utopia-php/psr7": "^0.2.0",
                 "utopia-php/servers": "^0.4",
                 "utopia-php/system": "^0.10",
                 "utopia-php/telemetry": "^0.4",
@@ -2494,9 +2496,9 @@
             ],
             "support": {
                 "issues": "https://github.com/utopia-php/http/issues",
-                "source": "https://github.com/utopia-php/http/tree/2.0.0-rc14"
+                "source": "https://github.com/utopia-php/http/tree/2.0.0-rc16"
             },
-            "time": "2026-06-26T10:48:18+00:00"
+            "time": "2026-07-06T15:25:18+00:00"
         },
         {
             "name": "utopia-php/lock",
@@ -2708,6 +2710,52 @@
             "time": "2026-06-26T10:48:18+00:00"
         },
         {
+            "name": "utopia-php/psr7",
+            "version": "0.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/utopia-php/psr7.git",
+                "reference": "115753c36194d53abe5587d383810724ac3a782d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/utopia-php/psr7/zipball/115753c36194d53abe5587d383810724ac3a782d",
+                "reference": "115753c36194d53abe5587d383810724ac3a782d",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.4",
+                "psr/http-factory": "^1.0",
+                "psr/http-message": "^1.1 || ^2.0"
+            },
+            "suggest": {
+                "ext-simplexml": "Required to decode XML responses with Response::xml()."
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Utopia\\Psr7\\": "src/Psr7/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "PSR-7 HTTP message implementations and PSR-17 factories for Utopia",
+            "keywords": [
+                "http",
+                "php",
+                "psr-17",
+                "psr-7",
+                "utopia"
+            ],
+            "support": {
+                "issues": "https://github.com/utopia-php/psr7/issues",
+                "source": "https://github.com/utopia-php/psr7/tree/0.2.0"
+            },
+            "time": "2026-07-06T12:40:23+00:00"
+        },
+        {
             "name": "utopia-php/queue",
             "version": "0.21.2",
             "source": {
@@ -2769,58 +2817,6 @@
                 "source": "https://github.com/utopia-php/queue/tree/0.21.2"
             },
             "time": "2026-06-20T09:45:06+00:00"
-        },
-        {
-            "name": "utopia-php/registry",
-            "version": "0.5.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/utopia-php/registry.git",
-                "reference": "bedc4ed54527b2803e6dfdccc39449f98522b70d"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/utopia-php/registry/zipball/bedc4ed54527b2803e6dfdccc39449f98522b70d",
-                "reference": "bedc4ed54527b2803e6dfdccc39449f98522b70d",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=7.4"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "^9.3",
-                "vimeo/psalm": "4.0.1"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Utopia\\Registry\\": "src/Registry"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Eldad Fux",
-                    "email": "eldad@appwrite.io"
-                }
-            ],
-            "description": "A simple dependency management library for PHP",
-            "keywords": [
-                "dependency management",
-                "di",
-                "framework",
-                "php",
-                "upf",
-                "utopia"
-            ],
-            "support": {
-                "issues": "https://github.com/utopia-php/registry/issues",
-                "source": "https://github.com/utopia-php/registry/tree/0.5.0"
-            },
-            "time": "2021-03-10T10:45:22+00:00"
         },
         {
             "name": "utopia-php/servers",
@@ -3015,7 +3011,40 @@
             "time": "2026-06-26T10:48:18+00:00"
         }
     ],
-    "packages-dev": [],
+    "packages-dev": [
+        {
+            "name": "swoole/ide-helper",
+            "version": "6.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/swoole/ide-helper.git",
+                "reference": "6f12243dce071714c5febe059578d909698f9a52"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/swoole/ide-helper/zipball/6f12243dce071714c5febe059578d909698f9a52",
+                "reference": "6f12243dce071714c5febe059578d909698f9a52",
+                "shasum": ""
+            },
+            "type": "library",
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache-2.0"
+            ],
+            "authors": [
+                {
+                    "name": "Team Swoole",
+                    "email": "team@swoole.com"
+                }
+            ],
+            "description": "IDE help files for Swoole.",
+            "support": {
+                "issues": "https://github.com/swoole/ide-helper/issues",
+                "source": "https://github.com/swoole/ide-helper/tree/6.0.2"
+            },
+            "time": "2025-03-23T07:31:41+00:00"
+        }
+    ],
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
@@ -3024,7 +3053,9 @@
     },
     "prefer-stable": false,
     "prefer-lowest": false,
-    "platform": {},
+    "platform": {
+        "ext-swoole": "*"
+    },
     "platform-dev": {},
     "platform-overrides": {
         "ext-protobuf": "3.0.0",

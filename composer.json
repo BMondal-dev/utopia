@@ -16,9 +16,7 @@
         "utopia-php/platform": "^1.0@RC",
         "utopia-php/database": "^6.0",
         "utopia-php/config": "^1.0",
-        "utopia-php/registry": "^0.5",
         "utopia-php/validators": "^0.2",
-        "utopia-php/console": "^0.1",
         "utopia-php/pools": "^1.0",
         "utopia-php/system": "^0.10",
         "ext-swoole": "*"

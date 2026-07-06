@@ -3,21 +3,20 @@
 use Utopia\Cache\Adapter\Memory as MemoryCache;
 use Utopia\Cache\Adapter\Redis as RedisCache;
 use Utopia\Cache\Cache;
-use Utopia\Config\Config;
 use Utopia\Database\Adapter\Postgres;
 use Utopia\Database\Database;
 use Utopia\Database\PDO;
 use Utopia\Database\Validator\Authorization;
 use Utopia\DI\Container;
 use Utopia\Http\Http;
+use Utopia\Pools\Adapter\Swoole as SwoolePool;
+use Utopia\Pools\Group;
+use Utopia\Pools\Pool;
 use Utopia\System\System;
 
-global $register;
 global $container;
 
 $container = new Container();
-
-$container->set('register', fn () => $register);
 
 $container->set('authorization', fn () => new Authorization());
 
@@ -44,6 +43,33 @@ $container->set('cache', function () {
     return new Cache(new RedisCache($redis));
 });
 
+$container->set('pools', function () {
+    $host = System::getEnv('DB_HOST', 'postgres');
+    $port = System::getEnv('DB_PORT', '5432');
+    $name = System::getEnv('DB_NAME', 'clarus');
+    $user = System::getEnv('DB_USER', 'clarus');
+    $pass = System::getEnv('DB_PASSWORD', 'secret');
+    $poolSize = (int) System::getEnv('DB_POOL_SIZE', '14');
+
+    $pool = new Pool(
+        new SwoolePool(),
+        'db',
+        $poolSize,
+        function () use ($host, $port, $name, $user, $pass) {
+            return new PDO(
+                "pgsql:host={$host};port={$port};dbname={$name};connect_timeout=3",
+                $user,
+                $pass,
+                Postgres::getPDOAttributes()
+            );
+        }
+    );
+
+    $group = new Group();
+    $group->add($pool);
+    return $group;
+});
+
 $container->set('db', function (Authorization $authorization, Cache $cache) {
     $host = System::getEnv('DB_HOST', 'postgres');
     $port = System::getEnv('DB_PORT', '5432');
@@ -68,5 +94,3 @@ $container->set('db', function (Authorization $authorization, Cache $cache) {
 
     return $database;
 }, ['authorization', 'cache']);
-
-$container->set('collections', fn () => Config::getParam('collections', []));
