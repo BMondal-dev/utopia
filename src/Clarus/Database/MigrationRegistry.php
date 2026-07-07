@@ -2,6 +2,8 @@
 
 namespace Clarus\Database;
 
+use Clarus\Database\Migrations\M20260707064230AddTodoPriority;
+
 class MigrationRegistry
 {
     /**
@@ -10,7 +12,7 @@ class MigrationRegistry
     public static function all(): array
     {
         return [
-            // Register forward-only migrations here in the order they must run.
+            new M20260707064230AddTodoPriority(),
         ];
     }
 }
