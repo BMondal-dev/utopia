@@ -44,7 +44,11 @@ Architecture follows the same **Platform → Modules → Services → Actions** 
 │   │   ├── Response.php
 │   │   └── Server.php
 │   ├── Database/
-│   │   └── Setup.php
+│   │   ├── Setup.php
+│   │   ├── Migration.php
+│   │   ├── MigrationRegistry.php
+│   │   ├── Migrator.php
+│   │   └── Migrations/
 │   └── Extend/
 │       └── Exception.php
 ├── dev/watch.sh
@@ -109,6 +113,16 @@ docker compose up --build
 Redis runs on the internal compose network only (no host port). Development uses an in-memory cache adapter so Podman works without container DNS (`aardvark-dns`).
 
 Edit any `.php` file under `src/` or `app/` — the dev watcher reloads Swoole automatically.
+
+### Database migrations
+
+Run pending forward-only database migrations with:
+
+```bash
+podman-compose exec app php app/migrate.php
+```
+
+See [`docs/MIGRATIONS.md`](docs/MIGRATIONS.md) for how boot setup, schema config, and migrations fit together.
 
 ### Stop
 
