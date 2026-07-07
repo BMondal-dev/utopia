@@ -2,11 +2,11 @@
 
 namespace Clarus\Platform\Modules\Todos\Http\Todos;
 
+use Clarus\Auth\MembershipRole;
 use Clarus\Extend\Exception;
 use Clarus\Utopia\Response;
 use Utopia\Database\Database;
 use Utopia\Database\Query;
-use Utopia\Database\Validator\Authorization;
 use Utopia\Database\Validator\UID;
 use Utopia\Platform\Action;
 use Utopia\Platform\Scope\HTTP;
@@ -27,22 +27,22 @@ class Get extends Action
             ->setHttpPath('/v1/todos/:todoId')
             ->desc('Get todo')
             ->groups(['api', 'todos'])
-            ->param('todoId', '', fn (Database $db) => new UID($db->getAdapter()->getMaxUIDLength()), 'Todo ID.', false, ['db'])
+            ->label('auth', true)
+            ->label('roles', MembershipRole::all())
+            ->param('todoId', '', fn (Database $dbForTenant) => new UID($dbForTenant->getAdapter()->getMaxUIDLength()), 'Todo ID.', false, ['dbForTenant'])
             ->inject('response')
-            ->inject('db')
-            ->inject('authorization')
+            ->inject('dbForTenant')
             ->callback($this->action(...));
     }
 
     public function action(
         string $todoId,
         Response $response,
-        Database $db,
-        Authorization $authorization,
+        Database $dbForTenant,
     ): void {
-        $todo = $authorization->skip(fn () => $db->findOne('todos', [
+        $todo = $dbForTenant->findOne('todos', [
             Query::equal('$id', [$todoId]),
-        ]));
+        ]);
 
         if ($todo->isEmpty()) {
             throw new Exception(Exception::TODO_NOT_FOUND);

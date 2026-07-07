@@ -14,7 +14,8 @@ RUN composer install \
     --no-plugins \
     --no-scripts \
     --prefer-dist \
-    --no-dev
+    --no-dev \
+    --ignore-platform-reqs
 
 FROM docker.io/phpswoole/swoole:php8.4-alpine AS base
 

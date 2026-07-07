@@ -2,11 +2,11 @@
 
 namespace Clarus\Platform\Modules\Todos\Http\Todos;
 
+use Clarus\Auth\MembershipRole;
 use Clarus\Utopia\Response;
 use Utopia\Database\Database;
 use Utopia\Database\Document;
 use Utopia\Database\Query;
-use Utopia\Database\Validator\Authorization;
 use Utopia\Platform\Action;
 use Utopia\Platform\Scope\HTTP;
 use Utopia\Validator\Boolean;
@@ -29,13 +29,14 @@ class XList extends Action
             ->setHttpPath('/v1/todos')
             ->desc('List todos')
             ->groups(['api', 'todos'])
+            ->label('auth', true)
+            ->label('roles', MembershipRole::all())
             ->param('completed', null, new Nullable(new Boolean()), 'Filter by completed status.', true)
             ->param('limit', 25, new Integer(true), 'Maximum number of todos to return.', true)
             ->param('offset', 0, new Integer(true), 'Number of todos to skip.', true)
             ->param('total', true, new Boolean(true), 'When set to false, total count is omitted.', true)
             ->inject('response')
-            ->inject('db')
-            ->inject('authorization')
+            ->inject('dbForTenant')
             ->callback($this->action(...));
     }
 
@@ -45,8 +46,7 @@ class XList extends Action
         int $offset,
         bool $total,
         Response $response,
-        Database $db,
-        Authorization $authorization,
+        Database $dbForTenant,
     ): void {
         $queries = [
             Query::limit($limit),
@@ -60,8 +60,8 @@ class XList extends Action
 
         $filterQueries = Query::groupByType($queries)['filters'];
 
-        $todos = $authorization->skip(fn () => $db->find('todos', $queries));
-        $totalCount = $total ? $authorization->skip(fn () => $db->count('todos', $filterQueries)) : 0;
+        $todos = $dbForTenant->find('todos', $queries);
+        $totalCount = $total ? $dbForTenant->count('todos', $filterQueries) : 0;
 
         $response->dynamic(new Document([
             'todos' => $todos,

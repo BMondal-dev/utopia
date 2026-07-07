@@ -2,12 +2,12 @@
 
 namespace Clarus\Platform\Modules\Todos\Http\Todos;
 
+use Clarus\Auth\MembershipRole;
 use Clarus\Extend\Exception;
 use Clarus\Utopia\Response;
 use Utopia\Database\Database;
 use Utopia\Database\Document;
 use Utopia\Database\Query;
-use Utopia\Database\Validator\Authorization;
 use Utopia\Database\Validator\UID;
 use Utopia\Platform\Action;
 use Utopia\Platform\Scope\HTTP;
@@ -31,13 +31,14 @@ class Update extends Action
             ->setHttpPath('/v1/todos/:todoId')
             ->desc('Update todo')
             ->groups(['api', 'todos'])
-            ->param('todoId', '', fn (Database $db) => new UID($db->getAdapter()->getMaxUIDLength()), 'Todo ID.', false, ['db'])
+            ->label('auth', true)
+            ->label('roles', MembershipRole::all())
+            ->param('todoId', '', fn (Database $dbForTenant) => new UID($dbForTenant->getAdapter()->getMaxUIDLength()), 'Todo ID.', false, ['dbForTenant'])
             ->param('title', null, new Nullable(new Text(APP_LIMIT_TODO_TITLE)), 'Todo title.', true)
             ->param('description', null, new Nullable(new Text(APP_LIMIT_TODO_DESCRIPTION)), 'Todo description.', true)
             ->param('completed', null, new Nullable(new Boolean()), 'Whether the todo is completed.', true)
             ->inject('response')
-            ->inject('db')
-            ->inject('authorization')
+            ->inject('dbForTenant')
             ->callback($this->action(...));
     }
 
@@ -47,12 +48,11 @@ class Update extends Action
         ?string $description,
         ?bool $completed,
         Response $response,
-        Database $db,
-        Authorization $authorization,
+        Database $dbForTenant,
     ): void {
-        $todo = $authorization->skip(fn () => $db->findOne('todos', [
+        $todo = $dbForTenant->findOne('todos', [
             Query::equal('$id', [$todoId]),
-        ]));
+        ]);
 
         if ($todo->isEmpty()) {
             throw new Exception(Exception::TODO_NOT_FOUND);
@@ -79,7 +79,7 @@ class Update extends Action
             throw new Exception(Exception::GENERAL_ARGUMENT_INVALID, 'At least one field must be provided to update.');
         }
 
-        $todo = $authorization->skip(fn () => $db->updateDocument('todos', $todo->getId(), $updates));
+        $todo = $dbForTenant->updateDocument('todos', $todo->getId(), $updates);
 
         $response->dynamic($todo, Response::MODEL_TODO);
     }

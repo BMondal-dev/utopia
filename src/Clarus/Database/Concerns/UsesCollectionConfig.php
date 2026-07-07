@@ -4,6 +4,8 @@ namespace Clarus\Database\Concerns;
 
 use Utopia\Config\Config;
 use Utopia\Database\Database;
+use Utopia\Database\Document;
+use Utopia\Database\Helpers\ID;
 
 trait UsesCollectionConfig
 {
@@ -63,6 +65,87 @@ trait UsesCollectionConfig
             orders: $index['orders'] ?? [],
             ttl: $index['ttl'] ?? 1,
         );
+    }
+
+    protected function collectionHasAttribute(
+        Database $database,
+        string $collectionId,
+        string $attributeId,
+    ): bool {
+        $collection = $database->getCollection($collectionId);
+
+        if ($collection->isEmpty()) {
+            return false;
+        }
+
+        foreach ($collection->getAttribute('attributes', []) as $attribute) {
+            if ($attribute->getId() === $attributeId) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    protected function createCollectionFromConfig(
+        Database $database,
+        string $collectionId,
+    ): void {
+        $collection = $this->getCollectionDefinition($collectionId);
+
+        $attributes = \array_map(
+            fn (array $attribute) => new Document([
+                '$id' => ID::custom($attribute['$id']),
+                'type' => $attribute['type'],
+                'size' => $attribute['size'],
+                'required' => $attribute['required'],
+                'signed' => $attribute['signed'],
+                'array' => $attribute['array'],
+                'filters' => $attribute['filters'],
+                'default' => $attribute['default'] ?? null,
+                'format' => $attribute['format'] ?? '',
+            ]),
+            $collection['attributes'],
+        );
+
+        $indexes = \array_map(
+            fn (array $index) => new Document([
+                '$id' => ID::custom($index['$id']),
+                'type' => $index['type'],
+                'attributes' => $index['attributes'],
+                'orders' => $index['orders'] ?? [],
+                'lengths' => $index['lengths'] ?? [],
+            ]),
+            $collection['indexes'] ?? [],
+        );
+
+        $isTenantScoped = (bool) ($collection['tenant'] ?? false);
+        $wasSharedTables = $database->getSharedTables();
+
+        try {
+            $database->setSharedTables($isTenantScoped);
+            $database->createCollection($collectionId, $attributes, $indexes);
+        } finally {
+            $database->setSharedTables($wasSharedTables);
+        }
+    }
+
+    /**
+     * Drops and recreates a collection from `collections.php`.
+     *
+     * Intended for forward migrations that need to move an existing
+     * collection onto a new schema (for example, enabling tenant scoping).
+     * This is destructive: all documents in the collection are removed.
+     */
+    protected function recreateCollectionFromConfig(
+        Database $database,
+        string $collectionId,
+    ): void {
+        if (!$database->getCollection($collectionId)->isEmpty()) {
+            $database->deleteCollection($collectionId);
+        }
+
+        $this->createCollectionFromConfig($database, $collectionId);
     }
 
     /**

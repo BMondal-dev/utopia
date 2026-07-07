@@ -1,5 +1,8 @@
 <?php
 
+use Clarus\Auth\Jwt;
+use Clarus\Database\Factory as DatabaseFactory;
+use Utopia\Auth\Hashes\Argon2;
 use Utopia\Cache\Adapter\Memory as MemoryCache;
 use Utopia\Cache\Adapter\Redis as RedisCache;
 use Utopia\Cache\Cache;
@@ -19,6 +22,13 @@ global $container;
 $container = new Container();
 
 $container->set("authorization", fn () => new Authorization());
+
+$container->set("hash", fn () => new Argon2());
+
+$container->set(
+    "jwt",
+    fn () => new Jwt(System::getEnv("APP_SECRET", ""), APP_AUTH_JWT_TTL_SECONDS),
+);
 
 $container->set("cache", function () {
     $adapter = System::getEnv("_APP_CACHE_ADAPTER", "");
@@ -91,15 +101,11 @@ $container->set(
             Postgres::getPDOAttributes(),
         );
 
-        $database = new Database(new Postgres($pdo), $cache);
-        $database
-            ->setAuthorization($authorization)
-            ->setDatabase($name)
-            ->setNamespace(System::getEnv("DB_NAMESPACE", "clarus"))
-            ->setTimeout(APP_DATABASE_TIMEOUT_MILLISECONDS)
-            ->setMaxQueryValues(APP_DATABASE_QUERY_MAX_VALUES);
-
-        return $database;
+        return DatabaseFactory::platform(
+            new Database(new Postgres($pdo), $cache),
+            $authorization,
+            $cache,
+        );
     },
     ["authorization", "cache"],
 );

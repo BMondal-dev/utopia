@@ -1,11 +1,27 @@
 <?php
 
-const APP_NAME = 'Clarus Backend';
-const APP_VERSION = '0.1.0';
+const APP_NAME = "Clarus Backend";
+const APP_VERSION = "0.1.0";
 
 const APP_LIMIT_ARRAY_PARAMS_SIZE = 100;
 const APP_LIMIT_TODO_TITLE = 256;
 const APP_LIMIT_TODO_DESCRIPTION = 4096;
 
+const APP_LIMIT_USER_NAME = 128;
+const APP_LIMIT_USER_EMAIL = 320;
+const APP_LIMIT_USER_PASSWORD_HASH = 512;
+const APP_LIMIT_TENANT_NAME = 128;
+const APP_LIMIT_TENANT_SLUG = 128;
+const APP_LIMIT_ROLE = 32;
+const APP_LIMIT_SECRET_HASH = 512;
+
 const APP_DATABASE_TIMEOUT_MILLISECONDS = 15000;
 const APP_DATABASE_QUERY_MAX_VALUES = 1000;
+
+/**
+ * Auth
+ */
+const APP_AUTH_SESSION_COOKIE = "clarus_session";
+const APP_AUTH_SESSION_DURATION_SECONDS = 60 * 60 * 24 * 30; // 30 days
+const APP_AUTH_JWT_TTL_SECONDS = 60 * 15; // 15 minutes, for stateless account JWTs
+const APP_AUTH_OAUTH2_STATE_TTL_SECONDS = 60 * 10; // 10 minutes to complete the OAuth2 redirect round-trip

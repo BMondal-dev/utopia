@@ -46,6 +46,12 @@ class Todo extends Model
                 'description' => 'Whether the todo is completed.',
                 'default' => false,
                 'example' => false,
+            ])
+            ->addRule('ownerId', [
+                'type' => self::TYPE_STRING,
+                'description' => 'ID of the user who created the todo.',
+                'default' => '',
+                'example' => '5e5ea5c16897e',
             ]);
     }
 

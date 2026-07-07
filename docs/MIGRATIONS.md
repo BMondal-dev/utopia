@@ -1,5 +1,8 @@
 # Database Migrations
 
+> For how tenant-scoped collections, the `_tenant` column, and the
+> `db` / `dbForTenant` handles work, see [`docs/MULTITENANCY.md`](./MULTITENANCY.md).
+
 This project uses a lightweight, Appwrite-inspired migration system on top of `utopia-php/database`.
 
 Migrations are explicit PHP classes, forward-only, and run through:

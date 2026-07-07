@@ -9,11 +9,18 @@ use Utopia\Http\Adapter\Swoole\Response as SwooleResponse;
 
 class Response extends SwooleResponse
 {
-    public const MODEL_NONE = 'none';
-    public const MODEL_ERROR = 'error';
-    public const MODEL_HEALTH = 'health';
-    public const MODEL_TODO = 'todo';
-    public const MODEL_TODO_LIST = 'todoList';
+    public const MODEL_NONE = "none";
+    public const MODEL_ERROR = "error";
+    public const MODEL_HEALTH = "health";
+    public const MODEL_TODO = "todo";
+    public const MODEL_TODO_LIST = "todoList";
+    public const MODEL_USER = "user";
+    public const MODEL_SESSION = "session";
+    public const MODEL_JWT = "jwt";
+    public const MODEL_TENANT = "tenant";
+    public const MODEL_TENANT_LIST = "tenantList";
+    public const MODEL_MEMBERSHIP = "membership";
+    public const MODEL_MEMBERSHIP_LIST = "membershipList";
 
     protected array $payload = [];
 
@@ -33,7 +40,7 @@ class Response extends SwooleResponse
     public function getModel(string $key): Model
     {
         if (!isset(self::$models[$key])) {
-            throw new \Exception('Undefined model: ' . $key);
+            throw new \Exception("Undefined model: " . $key);
         }
 
         return self::$models[$key];
@@ -71,35 +78,47 @@ class Response extends SwooleResponse
         }
 
         foreach ($modelObject->getRules() as $key => $rule) {
-            if (!$data->isSet($key) && $rule['required']) {
-                if (\array_key_exists('default', $rule)) {
-                    $data->setAttribute($key, $rule['default']);
+            if (!$data->isSet($key) && $rule["required"]) {
+                if (\array_key_exists("default", $rule)) {
+                    $data->setAttribute($key, $rule["default"]);
                 } else {
-                    throw new \Exception('Model ' . $modelObject->getName() . ' is missing response key: ' . $key);
+                    throw new \Exception(
+                        "Model " .
+                            $modelObject->getName() .
+                            " is missing response key: " .
+                            $key,
+                    );
                 }
             }
 
-            if (!$data->isSet($key) && !$rule['required']) {
+            if (!$data->isSet($key) && !$rule["required"]) {
                 $output[$key] = null;
                 continue;
             }
 
-            if ($rule['array']) {
+            if ($rule["array"]) {
                 if (!\is_array($data[$key])) {
-                    throw new \Exception($key . ' must be an array of type ' . $rule['type']);
+                    throw new \Exception(
+                        $key . " must be an array of type " . $rule["type"],
+                    );
                 }
 
                 foreach ($data[$key] as $index => $item) {
                     if ($item instanceof Document) {
-                        if (!self::hasModel($rule['type'])) {
-                            throw new \Exception('Missing model for rule: ' . $rule['type']);
+                        if (!self::hasModel($rule["type"])) {
+                            throw new \Exception(
+                                "Missing model for rule: " . $rule["type"],
+                            );
                         }
 
-                        $data[$key][$index] = $this->output($item, $rule['type']);
+                        $data[$key][$index] = $this->output(
+                            $item,
+                            $rule["type"],
+                        );
                     }
                 }
             } elseif ($data[$key] instanceof Document) {
-                $data[$key] = $this->output($data[$key], $rule['type']);
+                $data[$key] = $this->output($data[$key], $rule["type"]);
             }
 
             $output[$key] = $data[$key];
@@ -113,14 +132,17 @@ class Response extends SwooleResponse
     public function json(mixed $data): void
     {
         if (!\is_array($data) && !$data instanceof \stdClass) {
-            throw new \Exception('Response body is not a valid JSON object.');
+            throw new \Exception("Response body is not a valid JSON object.");
         }
 
         $this->payload = \is_array($data) ? $data : (array) $data;
 
-        $this
-            ->setContentType(self::CONTENT_TYPE_JSON, self::CHARSET_UTF8)
-            ->send(\json_encode($data, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR));
+        $this->setContentType(
+            self::CONTENT_TYPE_JSON,
+            self::CHARSET_UTF8,
+        )->send(
+            \json_encode($data, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR),
+        );
     }
 
     public function getPayload(): array
