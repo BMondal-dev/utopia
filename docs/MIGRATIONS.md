@@ -51,6 +51,7 @@ If only `collections.php` is changed, existing collections are not updated becau
 | `src/Clarus/Database/MigrationRegistry.php` | Explicit ordered list of migrations |
 | `src/Clarus/Database/Migrations/` | Directory for migration classes |
 | `src/Clarus/Database/Concerns/UsesCollectionConfig.php` | Helper trait for creating attributes/indexes from `collections.php` definitions |
+| `src/Clarus/Database/Concerns/IteratesDocuments.php` | Helper trait for document backfills and transformations |
 | `app/config/collections.php` | Includes the `migrations` tracking collection |
 
 ## Migration tracking
@@ -71,6 +72,25 @@ A migration is recorded only after `execute()` finishes successfully.
 
 If a migration fails, the runner stops immediately and exits with a non-zero status. The failed migration is not marked as applied.
 
+## Migration naming convention
+
+Use one naming format for every migration:
+
+```text
+File/class: M{YYYYMMDDHHMMSS}{PascalCaseName}.php
+ID:         {YYYYMMDDHHMMSS}_{snake_case_name}
+```
+
+Example:
+
+```text
+File:  src/Clarus/Database/Migrations/M20260707064230AddTodoPriority.php
+Class: M20260707064230AddTodoPriority
+ID:    20260707064230_add_todo_priority
+```
+
+Use a UTC timestamp when creating the migration. Keep migrations registered in ascending timestamp order in `MigrationRegistry`.
+
 ## Creating a migration
 
 Create a class under `src/Clarus/Database/Migrations/`:
@@ -84,13 +104,13 @@ use Clarus\Database\Concerns\UsesCollectionConfig;
 use Clarus\Database\Migration;
 use Utopia\Database\Database;
 
-final class M202607070001AddTodoPriority implements Migration
+final class M20260707064230AddTodoPriority implements Migration
 {
     use UsesCollectionConfig;
 
     public function getId(): string
     {
-        return '202607070001_add_todo_priority';
+        return '20260707064230_add_todo_priority';
     }
 
     public function getName(): string
@@ -118,12 +138,12 @@ Then register it in order:
 ```php
 // src/Clarus/Database/MigrationRegistry.php
 
-use Clarus\Database\Migrations\M202607070001AddTodoPriority;
+use Clarus\Database\Migrations\M20260707064230AddTodoPriority;
 
 public static function all(): array
 {
     return [
-        new M202607070001AddTodoPriority(),
+        new M20260707064230AddTodoPriority(),
     ];
 }
 ```
@@ -160,8 +180,8 @@ Expected output when a migration runs:
 
 ```text
 Starting migrations...
-Running 202607070001_add_todo_priority: Add priority to todos
-Done 202607070001_add_todo_priority
+Running 20260707064230_add_todo_priority: Add priority to todos
+Done 20260707064230_add_todo_priority
 Migration completed.
 ```
 
@@ -183,13 +203,84 @@ Example output:
 
 ```text
 Applied:
-- 202607070001_add_todo_priority (2026-07-07T12:00:00+00:00) Add priority to todos
+- 20260707064230_add_todo_priority (2026-07-07T12:00:00+00:00) Add priority to todos
 
 Pending:
 - 202607080001_add_todo_due_at Add due date to todos
 ```
 
 If a group is empty, status prints `- none`.
+
+## Schema change patterns
+
+Follow the Appwrite-style migration pattern:
+
+| Change type | Preferred migration style |
+|-------------|---------------------------|
+| Add attribute from `collections.php` | `createAttributeFromCollection()` |
+| Add multiple attributes from `collections.php` | `createAttributesFromCollection()` |
+| Add index from `collections.php` | `createIndexFromCollection()` |
+| Change existing attribute type/size/required/signed/array key | call Utopia DB's `updateAttribute()` directly |
+| Change existing attribute default | call Utopia DB's `updateAttributeDefault()` directly |
+| Rename attribute | call Utopia DB's `renameAttribute()` directly |
+| Delete attribute | call Utopia DB's `deleteAttribute()` directly |
+| Rename index | call Utopia DB's `renameIndex()` directly |
+| Delete index | call Utopia DB's `deleteIndex()` directly |
+| Backfill or transform documents in one collection | use `forEachDocumentInCollection()` |
+| Backfill or transform documents across configured top-level collections | use `forEachDocument()` |
+
+`UsesCollectionConfig` is intentionally scoped to creating config-defined attributes and indexes. Updates, renames, and deletes should be explicit in the migration class so the migration describes the operational change clearly. Document backfills can use `IteratesDocuments` to avoid repeating iteration/update boilerplate.
+
+Example required-field update:
+
+```php
+final class M202607080001MakeTodoPriorityOptional implements Migration
+{
+    public function getId(): string
+    {
+        return '202607080001_make_todo_priority_optional';
+    }
+
+    public function getName(): string
+    {
+        return 'Make todo priority optional';
+    }
+
+    public function execute(Database $db): void
+    {
+        $db->updateAttribute('todos', 'priority', required: false);
+    }
+}
+```
+
+For non-required to required changes, backfill existing documents first, then update the attribute:
+
+```php
+use Clarus\Database\Concerns\IteratesDocuments;
+
+final class M202607080002RequireTodoPriority implements Migration
+{
+    use IteratesDocuments;
+
+    public function execute(Database $db): void
+    {
+        $this->forEachDocumentInCollection($db, 'todos', function (Document $todo): ?Document {
+            if ($todo->getAttribute('priority') !== null) {
+                return null;
+            }
+
+            $todo->setAttribute('priority', 'normal');
+            return $todo;
+        });
+
+        $db->updateAttribute('todos', 'priority', required: true);
+    }
+}
+```
+
+`forEachDocumentInCollection()` compares each document before/after the callback and only persists changed documents. Return `null` when no update is needed.
+
+Also update `app/config/collections.php` to reflect the final desired schema for fresh databases.
 
 ## Rollback policy
 
@@ -202,5 +293,5 @@ This follows the Appwrite-style forward migration approach. Many schema/data mig
 - Run migrations before deploying code that depends on the new schema.
 - Do not run migrations from request handlers.
 - Do not rely on HTTP boot setup to update existing collections.
-- Keep migration IDs unique and ordered, preferably timestamp-prefixed.
+- Keep migration IDs unique and ordered using `YYYYMMDDHHMMSS_snake_case_name`.
 - Keep each migration focused and safe to retry when possible.
