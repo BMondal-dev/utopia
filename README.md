@@ -48,6 +48,7 @@ Architecture follows the same **Platform → Modules → Services → Actions** 
 │   │   ├── Migration.php
 │   │   ├── MigrationRegistry.php
 │   │   ├── Migrator.php
+│   │   ├── Concerns/
 │   │   └── Migrations/
 │   └── Extend/
 │       └── Exception.php

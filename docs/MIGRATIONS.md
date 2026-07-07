@@ -50,6 +50,7 @@ If only `collections.php` is changed, existing collections are not updated becau
 | `src/Clarus/Database/Migrator.php` | Runs pending migrations and records successful ones |
 | `src/Clarus/Database/MigrationRegistry.php` | Explicit ordered list of migrations |
 | `src/Clarus/Database/Migrations/` | Directory for migration classes |
+| `src/Clarus/Database/Concerns/UsesCollectionConfig.php` | Helper trait for creating attributes/indexes from `collections.php` definitions |
 | `app/config/collections.php` | Includes the `migrations` tracking collection |
 
 ## Migration tracking
@@ -79,11 +80,14 @@ Create a class under `src/Clarus/Database/Migrations/`:
 
 namespace Clarus\Database\Migrations;
 
+use Clarus\Database\Concerns\UsesCollectionConfig;
 use Clarus\Database\Migration;
 use Utopia\Database\Database;
 
 final class M202607070001AddTodoPriority implements Migration
 {
+    use UsesCollectionConfig;
+
     public function getId(): string
     {
         return '202607070001_add_todo_priority';
@@ -96,16 +100,17 @@ final class M202607070001AddTodoPriority implements Migration
 
     public function execute(Database $db): void
     {
-        $db->createAttribute(
-            collection: 'todos',
-            id: 'priority',
-            type: Database::VAR_STRING,
-            size: 32,
-            required: false,
-            default: 'normal'
-        );
+        $this->createAttributeFromCollection($db, 'todos', 'priority');
+        $this->createIndexFromCollection($db, 'todos', '_key_priority');
     }
 }
+```
+
+The helper trait reads attribute and index definitions from `app/config/collections.php`, so migrations and fresh-install schema stay aligned. If the migration creates an attribute/index on one collection using another collection's config definition, pass the source collection as the fourth argument:
+
+```php
+$this->createAttributeFromCollection($db, 'targetCollection', 'attributeId', 'sourceCollection');
+$this->createIndexFromCollection($db, 'targetCollection', 'indexId', 'sourceCollection');
 ```
 
 Then register it in order:
