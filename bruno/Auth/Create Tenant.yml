@@ -1,0 +1,26 @@
+info:
+  name: Create Tenant
+  type: http
+  seq: 3
+
+http:
+  method: POST
+  url: http://localhost:8080/v1/tenants
+  headers:
+    - name: Cookie
+      value: cookies.txt
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "name": "Tezz INC."
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
