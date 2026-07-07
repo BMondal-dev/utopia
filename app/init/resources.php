@@ -18,23 +18,27 @@ global $container;
 
 $container = new Container();
 
-$container->set('authorization', fn () => new Authorization());
+$container->set("authorization", fn () => new Authorization());
 
-$container->set('cache', function () {
-    $adapter = System::getEnv('_APP_CACHE_ADAPTER', '');
+$container->set("cache", function () {
+    $adapter = System::getEnv("_APP_CACHE_ADAPTER", "");
 
-    if ($adapter === 'memory' || System::getEnv('_APP_ENV', Http::MODE_TYPE_PRODUCTION) === Http::MODE_TYPE_DEVELOPMENT) {
+    if (
+        $adapter === "memory" ||
+        System::getEnv("_APP_ENV", Http::MODE_TYPE_PRODUCTION) ===
+            Http::MODE_TYPE_DEVELOPMENT
+    ) {
         return new Cache(new MemoryCache());
     }
 
-    $host = System::getEnv('REDIS_HOST', 'redis');
-    $port = (int) System::getEnv('REDIS_PORT', 6379);
-    $pass = System::getEnv('REDIS_PASS', '');
+    $host = System::getEnv("REDIS_HOST", "redis");
+    $port = (int) System::getEnv("REDIS_PORT", 6379);
+    $pass = System::getEnv("REDIS_PASS", "");
 
     $redis = new \Redis();
     @$redis->pconnect($host, $port);
 
-    if ($pass !== '') {
+    if ($pass !== "") {
         $redis->auth($pass);
     }
 
@@ -43,54 +47,59 @@ $container->set('cache', function () {
     return new Cache(new RedisCache($redis));
 });
 
-$container->set('pools', function () {
-    $host = System::getEnv('DB_HOST', 'postgres');
-    $port = System::getEnv('DB_PORT', '5432');
-    $name = System::getEnv('DB_NAME', 'clarus');
-    $user = System::getEnv('DB_USER', 'clarus');
-    $pass = System::getEnv('DB_PASSWORD', 'secret');
-    $poolSize = (int) System::getEnv('DB_POOL_SIZE', '14');
+$container->set("pools", function () {
+    $host = System::getEnv("DB_HOST", "postgres");
+    $port = System::getEnv("DB_PORT", "5432");
+    $name = System::getEnv("DB_NAME", "clarus");
+    $user = System::getEnv("DB_USER", "clarus");
+    $pass = System::getEnv("DB_PASSWORD", "secret");
+    $poolSize = (int) System::getEnv("DB_POOL_SIZE", "14");
 
-    $pool = new Pool(
-        new SwoolePool(),
-        'db',
-        $poolSize,
-        function () use ($host, $port, $name, $user, $pass) {
-            return new PDO(
-                "pgsql:host={$host};port={$port};dbname={$name};connect_timeout=3",
-                $user,
-                $pass,
-                Postgres::getPDOAttributes()
-            );
-        }
-    );
+    $pool = new Pool(new SwoolePool(), "db", $poolSize, function () use (
+        $host,
+        $port,
+        $name,
+        $user,
+        $pass,
+    ) {
+        return new PDO(
+            "pgsql:host={$host};port={$port};dbname={$name};connect_timeout=3",
+            $user,
+            $pass,
+            Postgres::getPDOAttributes(),
+        );
+    });
 
     $group = new Group();
     $group->add($pool);
     return $group;
 });
 
-$container->set('db', function (Authorization $authorization, Cache $cache) {
-    $host = System::getEnv('DB_HOST', 'postgres');
-    $port = System::getEnv('DB_PORT', '5432');
-    $name = System::getEnv('DB_NAME', 'clarus');
-    $user = System::getEnv('DB_USER', 'clarus');
-    $pass = System::getEnv('DB_PASSWORD', 'secret');
+$container->set(
+    "db",
+    function (Authorization $authorization, Cache $cache) {
+        $host = System::getEnv("DB_HOST", "postgres");
+        $port = System::getEnv("DB_PORT", "5432");
+        $name = System::getEnv("DB_NAME", "clarus");
+        $user = System::getEnv("DB_USER", "clarus");
+        $pass = System::getEnv("DB_PASSWORD", "secret");
 
-    $pdo = new PDO(
-        "pgsql:host={$host};port={$port};dbname={$name};connect_timeout=3",
-        $user,
-        $pass,
-        Postgres::getPDOAttributes()
-    );
+        $pdo = new PDO(
+            "pgsql:host={$host};port={$port};dbname={$name};connect_timeout=3",
+            $user,
+            $pass,
+            Postgres::getPDOAttributes(),
+        );
 
-    $database = new Database(new Postgres($pdo), $cache);
-    $database
-        ->setAuthorization($authorization)
-        ->setDatabase($name)
-        ->setNamespace(System::getEnv('DB_NAMESPACE', 'clarus'))
-        ->setTimeout(APP_DATABASE_TIMEOUT_MILLISECONDS)
-        ->setMaxQueryValues(APP_DATABASE_QUERY_MAX_VALUES);
+        $database = new Database(new Postgres($pdo), $cache);
+        $database
+            ->setAuthorization($authorization)
+            ->setDatabase($name)
+            ->setNamespace(System::getEnv("DB_NAMESPACE", "clarus"))
+            ->setTimeout(APP_DATABASE_TIMEOUT_MILLISECONDS)
+            ->setMaxQueryValues(APP_DATABASE_QUERY_MAX_VALUES);
 
-    return $database;
-}, ['authorization', 'cache']);
+        return $database;
+    },
+    ["authorization", "cache"],
+);
