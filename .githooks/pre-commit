@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+#
+# Pre-commit hook: formats staged PHP files with Laravel Pint before commit.
+#
+# Installed automatically via `composer install`/`composer update`
+# (see the post-install-cmd/post-update-cmd scripts in composer.json), or manually with:
+#   git config core.hooksPath .githooks
+
+set -eu
+
+ROOT_DIR="$(git rev-parse --show-toplevel)"
+PINT_BIN="$ROOT_DIR/vendor/bin/pint"
+
+if [ ! -x "$PINT_BIN" ]; then
+    echo "Pint not found at $PINT_BIN - run 'composer install' first. Skipping formatting."
+    exit 0
+fi
+
+# Only staged, non-deleted PHP files.
+mapfile -t STAGED_FILES < <(git diff --cached --name-only --diff-filter=ACMR -- '*.php')
+
+if [ "${#STAGED_FILES[@]}" -eq 0 ]; then
+    exit 0
+fi
+
+echo "Running Pint on ${#STAGED_FILES[@]} staged PHP file(s)..."
+
+if ! "$PINT_BIN" --config="$ROOT_DIR/pint.json" "${STAGED_FILES[@]}"; then
+    echo "Pint failed. Fix the reported issues and try committing again."
+    exit 1
+fi
+
+# Re-stage any files Pint reformatted.
+git add -- "${STAGED_FILES[@]}"
+
+exit 0

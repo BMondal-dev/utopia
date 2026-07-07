@@ -13,7 +13,6 @@ use Utopia\Http\Request;
 use Utopia\Http\Response as HttpResponse;
 use Utopia\Http\Route;
 use Utopia\Platform\Service;
-use Utopia\System\System;
 
 Http::init()
     ->groups(['api'])

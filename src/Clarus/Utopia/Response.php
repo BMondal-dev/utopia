@@ -3,7 +3,6 @@
 namespace Clarus\Utopia;
 
 use Clarus\Utopia\Response\Model;
-use JsonException;
 use Swoole\Http\Response as SwooleHTTPResponse;
 use Utopia\Database\Document;
 use Utopia\Http\Adapter\Swoole\Response as SwooleResponse;

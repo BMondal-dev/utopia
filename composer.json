@@ -22,7 +22,18 @@
         "ext-swoole": "*"
     },
     "require-dev": {
-        "swoole/ide-helper": "6.*"
+        "swoole/ide-helper": "6.*",
+        "laravel/pint": "^1.29"
+    },
+    "scripts": {
+        "post-install-cmd": [
+            "git rev-parse --is-inside-work-tree >/dev/null 2>&1 && git config core.hooksPath .githooks || true"
+        ],
+        "post-update-cmd": [
+            "git rev-parse --is-inside-work-tree >/dev/null 2>&1 && git config core.hooksPath .githooks || true"
+        ],
+        "format": "pint",
+        "format:test": "pint --test"
     },
     "config": {
         "platform": {

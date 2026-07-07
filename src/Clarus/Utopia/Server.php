@@ -8,7 +8,6 @@ use Swoole\Http\Response as SwooleResponse;
 use Utopia\Cache\Cache;
 use Utopia\Database\Adapter\Postgres;
 use Utopia\Database\Database;
-use Utopia\Database\PDO;
 use Utopia\Database\Validator\Authorization;
 use Utopia\Http\Adapter\Swoole\Request;
 use Utopia\Http\Adapter\Swoole\Server as BaseServer;
