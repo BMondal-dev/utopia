@@ -12,6 +12,8 @@ use Utopia\System\System;
 
 global $container;
 
+$command = $argv[1] ?? 'run';
+
 try {
     /** @var Database $db */
     $db = $container->get('db');
@@ -19,16 +21,26 @@ try {
     /** @var Authorization $authorization */
     $authorization = $container->get('authorization');
 
-    \fwrite(STDOUT, 'Starting migrations...' . PHP_EOL);
-
-    $authorization->skip(function () use ($db): void {
+    $authorization->skip(function () use ($db, $command): void {
         Setup::run($db);
 
         $migrator = new Migrator(MigrationRegistry::all());
-        $migrator->run($db);
-    });
 
-    \fwrite(STDOUT, 'Migration completed.' . PHP_EOL);
+        switch ($command) {
+            case 'run':
+                \fwrite(STDOUT, 'Starting migrations...' . PHP_EOL);
+                $migrator->run($db);
+                \fwrite(STDOUT, 'Migration completed.' . PHP_EOL);
+                break;
+
+            case 'status':
+                $migrator->status($db);
+                break;
+
+            default:
+                throw new \InvalidArgumentException("Unknown migration command '{$command}'. Supported commands: run, status.");
+        }
+    });
     exit(0);
 } catch (\Throwable $error) {
     \fwrite(STDERR, 'Migration failed: ' . $error->getMessage() . PHP_EOL);

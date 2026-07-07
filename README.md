@@ -123,6 +123,12 @@ Run pending forward-only database migrations with:
 podman-compose exec app php app/migrate.php
 ```
 
+Check applied/pending migrations with:
+
+```bash
+podman-compose exec app php app/migrate.php status
+```
+
 See [`docs/MIGRATIONS.md`](docs/MIGRATIONS.md) for how boot setup, schema config, and migrations fit together.
 
 ### Stop

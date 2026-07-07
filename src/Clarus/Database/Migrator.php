@@ -54,9 +54,55 @@ class Migrator
         return $applied;
     }
 
+    public function status(Database $db): void
+    {
+        $applied = [];
+        $pending = [];
+
+        foreach ($this->migrations as $migration) {
+            $document = $this->getAppliedMigration($db, $migration);
+
+            if ($document->isEmpty()) {
+                $pending[] = $migration;
+                continue;
+            }
+
+            $applied[] = [
+                'migration' => $migration,
+                'appliedAt' => $document->getAttribute('appliedAt', 'unknown'),
+            ];
+        }
+
+        $this->log('Applied:');
+        if ($applied === []) {
+            $this->log('- none');
+        } else {
+            foreach ($applied as $item) {
+                /** @var Migration $migration */
+                $migration = $item['migration'];
+                $this->log("- {$migration->getId()} ({$item['appliedAt']}) {$migration->getName()}");
+            }
+        }
+
+        $this->log('');
+        $this->log('Pending:');
+        if ($pending === []) {
+            $this->log('- none');
+        } else {
+            foreach ($pending as $migration) {
+                $this->log("- {$migration->getId()} {$migration->getName()}");
+            }
+        }
+    }
+
     private function isApplied(Database $db, Migration $migration): bool
     {
-        return !$db->getDocument(self::COLLECTION_MIGRATIONS, $migration->getId())->isEmpty();
+        return !$this->getAppliedMigration($db, $migration)->isEmpty();
+    }
+
+    private function getAppliedMigration(Database $db, Migration $migration): Document
+    {
+        return $db->getDocument(self::COLLECTION_MIGRATIONS, $migration->getId());
     }
 
     private function recordApplied(Database $db, Migration $migration): void

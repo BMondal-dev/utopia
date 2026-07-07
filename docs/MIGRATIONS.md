@@ -142,6 +142,12 @@ Direct PHP, if local PHP has the required extensions and DB access:
 php app/migrate.php
 ```
 
+The default command is `run`. This is equivalent:
+
+```bash
+php app/migrate.php run
+```
+
 Expected output when there are no migrations:
 
 ```text
@@ -158,6 +164,32 @@ Running 202607070001_add_todo_priority: Add priority to todos
 Done 202607070001_add_todo_priority
 Migration completed.
 ```
+
+## Checking migration status
+
+Use the `status` command to see registered migrations grouped by applied and pending state:
+
+```bash
+podman-compose exec app php app/migrate.php status
+```
+
+Direct PHP:
+
+```bash
+php app/migrate.php status
+```
+
+Example output:
+
+```text
+Applied:
+- 202607070001_add_todo_priority (2026-07-07T12:00:00+00:00) Add priority to todos
+
+Pending:
+- 202607080001_add_todo_due_at Add due date to todos
+```
+
+If a group is empty, status prints `- none`.
 
 ## Rollback policy
 
